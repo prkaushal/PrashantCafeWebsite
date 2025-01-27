@@ -25,7 +25,7 @@ const Home = () => {
     }, []);
 
   return (
-    <div className='p-4 max-w-[1400px] mx-auto mt-10'>
+    <div className='p-4 max-w-[1400px] mx-auto '>
         <div className='rounded-lg bg-gradient-to-l from-green-400 to-green-600 mt-8 h-[40px]
                         flex items-center justify-center my-8'>
             <h1 className='text-2xl my-8 font-bold pl-8 text-white'>Beverages</h1>

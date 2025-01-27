@@ -10,7 +10,8 @@ import User from "./models/user.js";
 import { v2 as cloudinary } from "cloudinary";
 import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
-import { WebSocketServer } from 'ws';
+import { Server } from "socket.io";
+
 
 
 config();
@@ -19,38 +20,17 @@ const app = express();
 
 app.use(cors());
 
+
+
 const server = app.listen(process.env.PORT, () => console.log(`Server running on ${process.env.PORT} PORT`));
-const wss = new WebSocketServer({ server });
 
-wss.on('connection', (ws) => {
-    console.log('Client connected');
-  
-    ws.on('message', (message) => {
-      const { orderId, action } = JSON.parse(message);
-      if (action === 'startTimer') {
-        startOrderTimer(orderId, ws);
-      }
-    });
-  
-    ws.on('close', () => {
-      console.log('Client disconnected');
-    });
-  });
+// web sockets code here
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+  },
+});
 
-
-  const startOrderTimer = (orderId, ws) => {
-    let timeLeft = 600; // 10 minutes in seconds
-  
-    const interval = setInterval(() => {
-      if (timeLeft <= 0) {
-        clearInterval(interval);
-        ws.send(JSON.stringify({ orderId, timeLeft: 0 }));
-      } else {
-        timeLeft -= 1;
-        ws.send(JSON.stringify({ orderId, timeLeft }));
-      }
-    }, 1000);
-  };
 
 mongoose
     .connect(process.env.MONGODB_URI)
@@ -109,19 +89,13 @@ app.post('/upload-image', auth, parser.single('file'), (req, res) => {
         }
 });
 
-app.get('/userProfile', auth, async (req, res) => {
-    try {
+io.on('connection', (socket) => {
+  console.log('New client connected');
 
-        const user = await User.findById(req.user.id).select('-password')
-        if (!user) {
-            return res.status(404).json({ msg: 'User not found'});
-        }
-
-        res.json(user);
-
-    } catch (error) {
-        console.error(error);
-        res.status(500).send('Server error');
-    }
+  socket.on('disconnect', () => {
+    console.log('Client disconnected');
+  });
 });
+
+export { io };
 

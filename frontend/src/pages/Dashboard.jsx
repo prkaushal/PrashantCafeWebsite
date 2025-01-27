@@ -1,72 +1,88 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Spinner from "../components/Spinner";
-import { Link } from "react-router-dom";
+import io from "socket.io-client";
+
+const socket = io("http://localhost:3000");
 
 const Dashboard = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
-  
 
   useEffect(() => {
-    setLoading(true);
-
-    axios
-      .get("http://localhost:3000/order")
-      .then((response) => {
-        const ordersWithTime = response.data.map(order => ({
+    const fetchOrders = async () => {
+      try {
+        const response = await axios.get("http://localhost:3000/order");
+        const ordersWithTime = response.data.map((order) => ({
           ...order,
-          timeLeft: 120 // Initialize with 10 minutes (600 seconds)
+          timeLeft:
+            600 -
+            Math.floor(
+              (Date.now() - new Date(order.createdAt).getTime()) / 1000
+            ),
         }));
-        
         setOrders(ordersWithTime);
         setLoading(false);
-      })
-      .catch((error) => {
-        console.log(error);
+      } catch (error) {
+        console.error("Error fetching orders:", error);
         setLoading(false);
-      });
-  }, []);
+      }
+    };
+    fetchOrders();
 
-  useEffect(() => {
-    // WebSocket connection to receive time updates
-    const ws = new WebSocket("ws://localhost:3000");
+    socket.on("orderCreated", (newOrder) => {
+      setOrders((prevOrders) => [...prevOrders, newOrder]);
+    });
 
-    ws.onmessage = (event) => {
-      const { orderId, timeLeft } = JSON.parse(event.data);
-      console.log(`Order ID: ${orderId}, Time Left: ${timeLeft}`);
+    socket.on("orderDeleted", (deletedOrder) => {
+      setOrders((prevOrders) =>
+        prevOrders.filter((order) => order._id !== deletedOrder._id)
+      );
+    });
 
+    socket.on("orderUpdated", (updatedOrder) => {
       setOrders((prevOrders) =>
         prevOrders.map((order) =>
-          order._id === orderId ? { ...order, timeLeft } : order
+          order._id === updatedOrder._id ? updatedOrder : order
         )
       );
-    };
-
-    ws.onerror = (error) => {
-      console.error("WebSocket error:", error);
-    };
+    });
 
     return () => {
-      ws.close();
+      socket.off("orderCreated");
+      socket.off("orderDeleted");
+      socket.off("orderUpdated");
     };
   }, []);
 
-  useEffect(() => {
-    // Local timer to decrement timeLeft every second
-    const interval = setInterval(() => {
-      setOrders((prevOrders) =>
-        prevOrders.map((order) => ({
-          ...order,
-          timeLeft: order.timeLeft > 0 ? order.timeLeft - 1 : 0,
-        }))
-      );
-    }, 1000);
-
-    return () => {
-      clearInterval(interval); // Cleanup the interval on component unmount
+    // Calculate remaining time
+    const calculateTimeLeft = (createdAt) => {
+      const orderTime = new Date(createdAt).getTime();
+      const currentTime = Date.now();
+      const totalTime = 10 * 60 * 1000; // 10 minutes in milliseconds
+      const timeLeft = totalTime - (currentTime - orderTime);
+      return timeLeft > 0 ? timeLeft : 0;
     };
-  }, []);
+  
+    // Timer logic
+    useEffect(() => {
+      const timer = setInterval(() => {
+        setOrders((prevOrders) =>
+          prevOrders.map((order) => ({
+            ...order,
+            timeLeft: calculateTimeLeft(order.createdAt),
+          }))
+        );
+      }, 1000);
+  
+      return () => clearInterval(timer); // Cleanup on component unmount
+    }, []);
+  
+    const formatTime = (milliseconds) => {
+      const minutes = Math.floor(milliseconds / 60000);
+      const seconds = Math.floor((milliseconds % 60000) / 1000);
+      return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+    };
 
   const handleCompleteOrder = async (orderId) => {
     try {
@@ -77,16 +93,9 @@ const Dashboard = () => {
       });
       setOrders(orders.filter((order) => order._id !== orderId));
       localStorage.removeItem("orderInfo"); // Remove orderInfo from localStorage
-      alert("Order delivered successfully"); // Show notification
     } catch (error) {
       console.error("Error deleting order:", error);
     }
-  };
-
-  const formatTime = (seconds) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
   };
 
   return (
@@ -117,12 +126,19 @@ const Dashboard = () => {
                   </li>
                 ))}
               </ul>
-              <p className={`text-xl font-semibold ${order.timeLeft <= 120 ? "text-red-500" : "text-black"}`}>
-                Time Left: {formatTime(order.timeLeft)}
+                
+              <p>Order Time: {new Date(order.createdAt).toLocaleString()}</p>
+              <p
+                className={`text-xl font-semibold ${
+                  order.timeLeft <= 2 * 60 * 1000 ? "text-red-500" : "text-black"
+                }`}
+              >
+                Time Remaining: {formatTime(order.timeLeft || calculateTimeLeft(order.createdAt))}
               </p>
+
               <button
                 onClick={() => handleCompleteOrder(order._id)}
-                className="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded transition-colors duration-300"
+                className="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded transition-colors duration-300 mt-5"
               >
                 Complete Order
               </button>

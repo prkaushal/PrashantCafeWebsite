@@ -1,67 +1,104 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Spinner from "../components/Spinner";
+import io from "socket.io-client";
+
+const socket = io("http://localhost:3000");
 
 const TrackOrder = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [timers, setTimers] = useState({});
 
   useEffect(() => {
     const fetchOrders = async () => {
-        try {
-            const response = await axios.get("http://localhost:3000/order");
-            const ordersWithTime = response.data.map(order => ({
-              ...order,
-              timeLeft: 600 //Initialize with 10 minutes (600 seconds)
-            }));
-            setOrders(ordersWithTime);
-            setLoading(false);
-          } catch (error) {
-            console.error("Error fetching orders:", error);
-            setLoading(false);
-          }
+      try {
+        const response = await axios.get("http://localhost:3000/order");
+        const ordersWithTime = response.data.map((order) => ({
+          ...order,
+        }));
+        setOrders(ordersWithTime);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+        setLoading(false);
+      }
     };
 
     fetchOrders();
+
+    socket.on("orderCreated", (newOrder) => {
+      setOrders((prevOrders) => [...prevOrders, newOrder]);
+    });
+
+    socket.on("orderDeleted", (deletedOrder) => {
+      setOrders((prevOrders) =>
+        prevOrders.filter((order) => order._id !== deletedOrder._id)
+      );
+    });
+
+    socket.on("orderUpdated", (updatedOrder) => {
+      setOrders((prevOrders) =>
+        prevOrders.map((order) =>
+          order._id === updatedOrder._id ? updatedOrder : order
+        )
+      );
+    });
+
+    return () => {
+      socket.off("orderCreated");
+      socket.off("orderDeleted");
+      socket.off("orderUpdated");
+    };
   }, []);
 
+
   useEffect(() => {
-    if (orders.length > 0) {
-      const ws = new WebSocket("ws://localhost:3000");
-
-      ws.onopen = () => {
-        // Send a message to start the timer for each order
-        orders.forEach((order) => {
-          ws.send(JSON.stringify({ orderId: order._id, action: "startTimer" }));
+      const interval = setInterval(() => {
+        const newTimers = {};
+        orders.forEach(order => {
+          const orderTime = new Date(order.createdAt).getTime();
+          const currentTime = new Date().getTime();
+          let remainingTime = 10 * 60 * 1000 - (currentTime - orderTime);
+          if (remainingTime <= 0) {
+            remainingTime = 0;
+          }
+          newTimers[order.id] = remainingTime;
         });
-      };
-
-      ws.onmessage = (event) => {
-        const { orderId, timeLeft } = JSON.parse(event.data);
-        console.log(`TrackOrder - Order ID: ${orderId}, Time Left: ${timeLeft}`); // Add this line to print the timer
-        setOrders((prevOrders) =>
-          prevOrders.map((order) =>
-            order._id === orderId ? { ...order, timeLeft } : order
-          )
-        );
-      };
-
-      ws.onerror = (error) => {
-        console.error("WebSocket error:", error);
-      };
-
-      return () => {
-        ws.close();
-      };
-    }
-  }, [orders]);
-
-  const formatTime = (seconds) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
-  };
-
+        setTimers(newTimers);
+      }, 1000);
+  
+      return () => clearInterval(interval);
+    }, [orders]);
+  
+        // Calculate remaining time
+        const calculateTimeLeft = (createdAt) => {
+          const orderTime = new Date(createdAt).getTime();
+          const currentTime = Date.now();
+          const totalTime = 10 * 60 * 1000; // 10 minutes in milliseconds
+          const timeLeft = totalTime - (currentTime - orderTime);
+          return timeLeft > 0 ? timeLeft : 0;
+        };
+      
+        // Timer logic
+        useEffect(() => {
+          const timer = setInterval(() => {
+            setOrders((prevOrders) =>
+              prevOrders.map((order) => ({
+                ...order,
+                timeLeft: calculateTimeLeft(order.createdAt),
+              }))
+            );
+          }, 1000);
+      
+          return () => clearInterval(timer); // Cleanup on component unmount
+        }, []);
+      
+        const formatTime = (milliseconds) => {
+          const minutes = Math.floor(milliseconds / 60000);
+          const seconds = Math.floor((milliseconds % 60000) / 1000);
+          return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
+        };
 
   if (loading) {
     return (
@@ -104,8 +141,14 @@ const TrackOrder = () => {
               </li>
             ))}
           </ul>
-          <p className={`text-xl font-semibold ${order.timeLeft <= 120 ? 'text-red-500' : 'text-black'}`}>
-            Time Left: {formatTime(order.timeLeft)}
+
+          <p className="mt-10">Order Time: {new Date(order.createdAt).toLocaleString()}</p>
+          <p
+            className={`text-xl font-semibold ${
+              order.timeLeft <= 2 * 60 * 1000 ? "text-red-500" : "text-black"
+            }`}
+          >
+            Time Remaining: {formatTime(order.timeLeft || calculateTimeLeft(order.createdAt))}
           </p>
         </div>
       ))}

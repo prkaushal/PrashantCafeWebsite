@@ -11,18 +11,18 @@ const Navbar = () => {
 
 
   return (
-    <div className='bg-gradient-to-b from-green-400 to-green-600 shadow-lg fixed top-0 z-50 opacity-95 w-full'>
+    <div className='bg-gradient-to-r from-green-500 to-green-600 shadow-lg'>
         <div className='flex justify-between items-center p-4 max-w-[1400px] mx-auto'>
             <a href="/" className='flex items-center'>
                 <h1 className=' text-white font-extrabold  '>Prashant Cafe</h1>
             </a>
             <div className='flex flex-row justify-between gap-10'>
-            <Link to="/cart">
+            <Link to="/cart" >
             <CartIcon/>
             </Link>
             
-            <Link to="/orders" className='relative'>
-            <h2 className='text-white font-bold'>My Orders</h2>
+            <Link to="/orders" className={`relative ${location.pathname === '/orders' ? 'text-yellow-500' : 'text-white'}`}>
+            My Orders
             <TrackOrderIcon />
           </Link>
             </div>

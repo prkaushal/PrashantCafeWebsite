@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import io from 'socket.io-client';
+
+const socket = io("http://localhost:3000");
 
 const TrackOrderIcon = () => {
   const [orderCount, setOrderCount] = useState(0);
@@ -15,6 +18,24 @@ const TrackOrderIcon = () => {
     };
 
     fetchOrders();
+
+    socket.on('orderCreated', () => {
+      fetchOrders();
+    });
+
+    socket.on('orderDeleted', () => {
+      fetchOrders();
+    });
+
+    socket.on('orderUpdated', () => {
+      fetchOrders();
+    });
+
+    return () => {
+      socket.off('orderCreated');
+      socket.off('orderDeleted');
+      socket.off('orderUpdated');
+    };
   }, []);
 
   return (

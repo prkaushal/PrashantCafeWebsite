@@ -4,6 +4,9 @@ import axios from "axios";
 import { BiPlus, BiMinus } from "react-icons/bi";
 import { useSnackbar } from "notistack";
 import Spinner from "../components/Spinner";
+import io from "socket.io-client";
+
+const socket = io("http://localhost:3000");
 
 const Cart = () => {
   const [seatNumber, setSeatNumber] = useState("");
@@ -48,6 +51,7 @@ const Cart = () => {
       seatNumber,
       userName,
       totalPrice: cartItems.reduce((acc, item) => acc + item.priceInCents * item.quantity, 0),
+      orderTime: Date.now(), // Add order time
     };
 
     try {
@@ -61,6 +65,7 @@ const Cart = () => {
       setOrderInfo(response.data);
       console.log(response.data);
 
+      
       setLoading(false);
     } catch (error) {
       console.error("Error placing order:", error);

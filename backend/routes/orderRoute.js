@@ -3,10 +3,13 @@ import Order from "../models/orderModel.js";
 import crypto from "crypto";
 import { auth } from "../middleware/authMiddleware.js";
 import { config } from "dotenv";
+import { io } from "../index.js"; 
 
 config();
 
 const router = express.Router();
+
+
 
 //fetching all the orders
 router.get('/', async (req, res) => {
@@ -25,7 +28,7 @@ router.get('/:id', async (req, res) => {
 //updating an existing order
 router.put('/:id', auth, async (req, res) => {
     const updateOrder = await Order.findByIdAndUpdate(req.params.id, req.body, { new: true});
-    
+    io.emit('orderUpdated', updateOrder);
     res.json(updateOrder);
 })
 
@@ -36,6 +39,7 @@ router.delete('/:id', auth, async (req, res) => {
         if (!deletedOrder) {
             return res.status(404).json({ message: 'Order not found' });
         }
+        io.emit('orderDeleted', deletedOrder);
         res.json(deletedOrder);
     } catch (error) {
         console.error('Error deleting order:', error.message);
@@ -56,6 +60,8 @@ router.post('/', async (req, res) => {
         const order = new Order({ orderId,  items, seatNumber, userName , totalPrice });
         try {
             await order.save();
+            io.emit('orderCreated', order); // Emit event
+           
         } catch (error) {
             console.error('Error saving order: ', error.message);
             return res.status(500).send({ message: 'Error saving order: ' + error.message });
