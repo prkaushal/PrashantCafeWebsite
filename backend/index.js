@@ -53,7 +53,7 @@ wss.on('connection', (ws) => {
   };
 
 mongoose
-    .connect(process.env.mongodb)
+    .connect(process.env.MONGODB_URI)
     .then(() => console.log('Database is connected'))
     .catch((error) => console.log(error));
 

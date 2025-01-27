@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import Spinner from "../components/Spinner";
 
 const TrackOrder = () => {
   const [orders, setOrders] = useState([]);
@@ -11,7 +12,7 @@ const TrackOrder = () => {
             const response = await axios.get("http://localhost:3000/order");
             const ordersWithTime = response.data.map(order => ({
               ...order,
-              timeLeft: 60 // Initialize with 10 minutes (600 seconds)
+              timeLeft: 600 //Initialize with 10 minutes (600 seconds)
             }));
             setOrders(ordersWithTime);
             setLoading(false);
@@ -65,7 +66,7 @@ const TrackOrder = () => {
   if (loading) {
     return (
       <div className="text-black text-3xl text-center my-72">
-        Loading orders...
+        <Spinner />
       </div>
     );
   }
