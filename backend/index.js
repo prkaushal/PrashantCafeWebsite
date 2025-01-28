@@ -6,7 +6,6 @@ import orderRoute from "./routes/orderRoute.js";
 import { authRouter } from "./controllers/authController.js";
 import { auth } from "./middleware/authMiddleware.js";
 import cors from "cors";
-import User from "./models/user.js";
 import { v2 as cloudinary } from "cloudinary";
 import multer from "multer";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
@@ -69,7 +68,7 @@ const storage = new CloudinaryStorage({
 
 const parser = multer({ storage: storage });
 
-   
+
 
 
 app.post('/upload-image', auth, parser.single('file'), (req, res) => {
