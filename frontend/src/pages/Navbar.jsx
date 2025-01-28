@@ -17,7 +17,7 @@ const Navbar = () => {
                 <h1 className=' text-white font-extrabold  '>Prashant Cafe</h1>
             </a>
             <div className='flex flex-row justify-between gap-10'>
-            <Link to="/cart" >
+            <Link to="/cart" className={`relative ${location.pathname === '/cart' ? 'text-yellow-500' : 'text-white'}`} >
             <CartIcon/>
             </Link>
             
