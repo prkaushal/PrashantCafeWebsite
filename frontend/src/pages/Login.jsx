@@ -25,7 +25,7 @@ const Login = () => {
             const response = await axios.post('http://localhost:3000/auth/login', loginData);
             console.log(response.data);
 
-            localStorage.setItem('token', response.data.token);
+            localStorage.setItem('adminToken', response.data.token);
 
             navigate('/admin');
         } catch (error) {
@@ -43,7 +43,7 @@ const Login = () => {
 
   return (
     <div className='flex flex-col items-center justify-center min-h-screen bg-gray-100'>
-        <h2 className='text-2xl font-bold mb-10'>Log In</h2>
+        <h2 className='text-2xl font-bold mb-10'>Admin Log In</h2>
         {errorMessage && <p className='text-red-500 text-xs italic mb-2'>{errorMessage}</p>}
 
         <form className='w-full max-w-xs' onSubmit={submitHandler}>

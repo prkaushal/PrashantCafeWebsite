@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from "axios";
 
 
-const Register = () => {
+const UserRegister = () => {
 
     const navigate = useNavigate();
 
@@ -39,7 +39,7 @@ const Register = () => {
                 }
             };
 
-            await axios.post('http://localhost:3000/auth/register',
+            await axios.post('http://localhost:3000/auth/userRegister',
         {
             name: userData.name,
             email: userData.email,
@@ -51,7 +51,7 @@ const Register = () => {
         setIsSuccess(true);
         setErrorMessage('Registration succesfull');
         setTimeout(() => {
-            navigate('/login');
+            navigate('/userLogin');
         }, 4000);
 
         } catch (error) {
@@ -65,7 +65,7 @@ const Register = () => {
 
   return (
     <div className='flex flex-col items-center justify-center min-h-screen bg-gray-100'>
-        <h2 className='text-2xl font-bold mb-4'>Admin Register</h2>
+        <h2 className='text-2xl font-bold mb-4'>User Register</h2>
 
         {errorMessage && (
             <p className={`${isSuccess ? 'text-green-500' : 'text-red-500'} text-lg italic mb-4`}>
@@ -90,9 +90,9 @@ const Register = () => {
         </form>
 
         <p className='mt-4'>Existing/Created Account?</p>
-        <Link to="/login" className='text-blue-500 hover:text-blue-800 text-xl'>Sign In</Link>
+        <Link to="/userLogin" className='text-blue-500 hover:text-blue-800 text-xl'>Sign In</Link>
     </div>
   )
 }
 
-export default Register
+export default UserRegister

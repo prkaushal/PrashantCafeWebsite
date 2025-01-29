@@ -46,7 +46,10 @@ const Cart = () => {
       return;
     }
 
+    const userInfo = JSON.parse(localStorage.getItem('userInfo')); // Retrieve userInfo from local storage
+
     const orderData = {
+      user: userInfo.id,
       items: cartItems,
       seatNumber,
       userName,
@@ -56,9 +59,15 @@ const Cart = () => {
 
     try {
       setLoading(true);
+      const token = localStorage.getItem('userToken');
       const response = await axios.post(
         "http://localhost:3000/order",
-        orderData
+        orderData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}` // Pass the token in the headers
+          }
+        }
       );
       enqueueSnackbar("Order placed successfully", { variant: "success" });
       clearCart();

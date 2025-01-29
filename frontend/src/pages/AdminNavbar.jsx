@@ -8,11 +8,11 @@ const AdminNavbar = () => {
   const toggleNav = () => setNav(!nav);
 
   const logout = () => {
-    localStorage.removeItem("token");
-    window.location.href = "/";
+    localStorage.removeItem("adminToken");
+    window.location.href = "/login";
   };
 
-  const loggedIn = !!localStorage.getItem("token");
+  const loggedIn = !!localStorage.getItem("adminToken");
 
   return (
     <div className="bg-gradient-to-r from-green-500 to-green-600 shadow-lg">

@@ -1,6 +1,7 @@
 import Admin from "./pages/Admin";
 import React from "react";
 import ProtectedRoute from "./components/ProtectedRoute";
+import PrivateRoutesUser from "./components/PrivateRoutesUser";
 import { Routes, Route, useLocation } from "react-router-dom";
 import CreateFood from "./pages/CreateFood";
 import EditFood from "./pages/EditFood";
@@ -15,6 +16,8 @@ import Cart from "./pages/Cart";
 import Dashboard from "./pages/Dashboard";
 import DeleteOrder from "./pages/DeleteOrder";
 import TrackOrder from "./pages/TrackOrder";
+import UserRegister from "./pages/UserRegister";
+import UserLogin from "./pages/UserLogin";
 
 const App = () => {
   const location = useLocation();
@@ -24,12 +27,42 @@ const App = () => {
     <>
     {isAdminRoute ? <AdminNavbar/> : <Navbar/> }
     <Routes>
-      <Route path="/" element={<Home/>} />
-      <Route path="/contact" element={<Contact/>} />
-      <Route path="/cart" element={<Cart/>} />
+    <Route
+    path="/"
+    element={
+      <PrivateRoutesUser>
+        <Home />
+      </PrivateRoutesUser>
+    }
+  />
+  <Route
+  path="/contact"
+  element={
+    <PrivateRoutesUser>
+      <Contact />
+    </PrivateRoutesUser>
+  }
+/>
+<Route
+  path="/cart"
+  element={
+    <PrivateRoutesUser>
+      <Cart />
+    </PrivateRoutesUser>
+  }
+/>
       <Route path="/login" element={<Login/>} />
       <Route path="/register" element={<Register/>} />
-      <Route path="/orders" element={<TrackOrder/>} />
+      <Route
+          path="/orders"
+          element={
+            <PrivateRoutesUser>
+              <TrackOrder />
+            </PrivateRoutesUser>
+          }
+        />
+      <Route path="/userRegister" element={<UserRegister/>} />
+      <Route path="/userLogin" element={<UserLogin/>} />
       <Route
         path="/admin/*"
         element={

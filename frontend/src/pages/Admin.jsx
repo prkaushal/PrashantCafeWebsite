@@ -36,7 +36,7 @@ const Admin = () => {
             <tr>
               <th scope="col" className='py-3 px-5'>#</th>
               <th scope="col" className='py-3 px-5'>Name</th>
-              <th scope="col" className='py-3 px-5'>Price In Cents</th>
+              <th scope="col" className='py-3 px-5'>Price </th>
               <th scope="col" className='py-3 px-5'></th>
             </tr>
           </thead>

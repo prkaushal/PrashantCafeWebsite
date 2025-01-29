@@ -1,7 +1,7 @@
 import express from "express";
 import Order from "../models/orderModel.js";
 import crypto from "crypto";
-import { auth } from "../middleware/authMiddleware.js";
+import { auth , adminAuth } from "../middleware/authMiddleware.js";
 import { config } from "dotenv";
 import { io } from "../index.js"; 
 
@@ -10,13 +10,20 @@ config();
 const router = express.Router();
 
 
-
 //fetching all the orders
 router.get('/', async (req, res) => {
     const orders = await Order.find();
 
     res.json(orders);
 })
+
+
+// Fetching all the orders for the authenticated user
+router.get('/', auth, async (req, res) => {
+    const userId = req.user.id;
+    const orders = await Order.find({ user: userId });
+    res.json(orders);
+});
 
 //fetching a single order by id
 router.get('/:id', async (req, res) => {
@@ -33,7 +40,7 @@ router.put('/:id', auth, async (req, res) => {
 })
 
 //delete an order
-router.delete('/:id', auth, async (req, res) => {
+router.delete('/:id', adminAuth, async (req, res) => {
     try {
         const deletedOrder = await Order.findByIdAndDelete(req.params.id);
         if (!deletedOrder) {
@@ -48,16 +55,17 @@ router.delete('/:id', auth, async (req, res) => {
 });
 
 //creating a new order
-router.post('/', async (req, res) => {
-    const { items, seatNumber, userName, totalPrice } = req.body;
+router.post('/', auth , async (req, res) => {
+    const { user, items, seatNumber, userName, totalPrice } = req.body;
 
     if (!seatNumber || !userName) {
         return res.status(400).json({ message: 'Seat number and name are required.' });
     }
 
     const orderId = crypto.createHash('sha256').update(JSON.stringify(req.body)).digest('hex');
+    
 
-        const order = new Order({ orderId,  items, seatNumber, userName , totalPrice });
+        const order = new Order({ orderId,  items, seatNumber, userName , totalPrice, user });
         try {
             await order.save();
             io.emit('orderCreated', order); // Emit event

@@ -13,11 +13,14 @@ const TrackOrder = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/order");
-        const ordersWithTime = response.data.map((order) => ({
-          ...order,
-        }));
-        setOrders(ordersWithTime);
+        const token = localStorage.getItem('userToken');
+        const response = await axios.get("http://localhost:3000/order", {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+                
+        setOrders(response.data);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching orders:", error);

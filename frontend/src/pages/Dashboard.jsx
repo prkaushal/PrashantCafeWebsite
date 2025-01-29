@@ -88,7 +88,7 @@ const Dashboard = () => {
     try {
       await axios.delete(`http://localhost:3000/order/${orderId}`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`, // Include auth token if required
+          Authorization: `Bearer ${localStorage.getItem("adminToken")}`, // Include auth token if required
         },
       });
       setOrders(orders.filter((order) => order._id !== orderId));
