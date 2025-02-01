@@ -12,7 +12,14 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const response = await axios.get("http://localhost:3000/order");
+        const token = localStorage.getItem('adminToken');
+        const response = await axios.get("http://localhost:3000/order/all", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          }
+        });
+        console.log(response.data);
+        
         const ordersWithTime = response.data.map((order) => ({
           ...order,
           timeLeft:
@@ -111,7 +118,7 @@ const Dashboard = () => {
               className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
             >
               <h1 className="text-gray-700  mb-2">
-                <strong>Order by:</strong> {order.userName}
+                <strong>Ordered for:</strong> {order.userName}
               </h1>
               <p className="text-gray-700 mb-2">
                 <strong>Seat Number:</strong> {order.seatNumber}

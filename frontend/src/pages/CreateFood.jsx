@@ -7,7 +7,7 @@ import Spinner from '../components/Spinner';
 const CreateFood = () => {
 
     const [name, setName] = useState('');
-    const [priceInCents, setPriceInCents] = useState('');
+    const [price, setPrice] = useState('');
 
     const [loading, setLoading] = useState(false);
 
@@ -69,12 +69,12 @@ const CreateFood = () => {
     }
 
     const handleSaveFood = async () => {
-        if (!name || !priceInCents) {
+        if (!name || !price) {
             enqueueSnackbar('Please fill all required fields', {variant:'warning'});
             return;
         }
 
-        const price = parseInt(priceInCents);
+        const price = parseInt(price);
         if (isNaN(price) || price <= 0) {
             enqueueSnackbar('Price must be a positive number', { variant: 'warning'});
             return;
@@ -95,7 +95,7 @@ const CreateFood = () => {
 
             const formData = {
                 name,
-                priceInCents,
+                price,
                 image: uploadedImageUrl
             };
 
@@ -145,12 +145,12 @@ const CreateFood = () => {
                 required
                 />
 
-                <label htmlFor='priceInCents' className='block text-lg text-gray-600 mb-2'>Price</label>
+                <label htmlFor='price' className='block text-lg text-gray-600 mb-2'>Price</label>
                 <input
-                id="priceInCents"
+                id="price"
                 type="number"
-                value={priceInCents}
-                onChange={(e) => setPriceInCents(e.target.value)}
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
                 className='w-full border border-gray-300 px-4 py-2 rounded-md'
                 required
                 />

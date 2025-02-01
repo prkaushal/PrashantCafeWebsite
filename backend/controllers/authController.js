@@ -9,6 +9,10 @@ const router = express.Router();
 //router for admin registration
 router.post('/register', async (req,res) => {
     try {
+        const adminCount = await Admin.countDocuments();
+        if (adminCount >= 1) {
+            return res.status(400).json({ msg: 'Admin registration limit reached' });
+        }
 
         const { email, password } = req.body;
         const userExists = await Admin.findOne({email});

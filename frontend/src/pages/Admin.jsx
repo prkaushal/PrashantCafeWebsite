@@ -34,7 +34,7 @@ const Admin = () => {
         <table className='w-full text-left'>
           <thead className='uppercase bg-gray-200'>
             <tr>
-              <th scope="col" className='py-3 px-5'>#</th>
+              <th scope="col" className='py-3 px-5'>Index</th>
               <th scope="col" className='py-3 px-5'>Name</th>
               <th scope="col" className='py-3 px-5'>Price </th>
               <th scope="col" className='py-3 px-5'></th>
@@ -45,7 +45,7 @@ const Admin = () => {
               <tr key={food._id} className='bg-white hover:bg-gray-300'>
                 <td className='py-3 px-5'>{index + 1}</td>
                 <td className='py-3 px-5'>{food.name}</td>
-                <td className='py-3 px-5'>{food.priceInCents}</td>
+                <td className='py-3 px-5'>{food.price}</td>
                 <td className='py-3 px-5'>
                   <div className='flex justify-center gap-x-4'>
                     <div className='flex justify-center gap-x-1'>

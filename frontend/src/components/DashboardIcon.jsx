@@ -4,14 +4,14 @@ import io from 'socket.io-client';
 
 const socket = io("http://localhost:3000");
 
-const TrackOrderIcon = () => {
+const DashboardIcon = () => {
   const [orderCount, setOrderCount] = useState(0);
 
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const token = localStorage.getItem('userToken');
-        const response = await axios.get("http://localhost:3000/order", {
+        const token = localStorage.getItem('adminToken');
+        const response = await axios.get("http://localhost:3000/order/all", {
           headers: {
             Authorization: `Bearer ${token}`,
           }
@@ -23,20 +23,16 @@ const TrackOrderIcon = () => {
     };
 
     fetchOrders();
+    
 
-    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-
-    socket.on("orderCreated", (newOrder) => {   
-      if (newOrder.user === userInfo?.id) {
+    socket.on("orderCreated", (newOrder) => {
         setOrderCount((prevCount) => prevCount + 1);
-      }
-    });
-
-    socket.on("orderDeleted", (deletedOrder) => {
-      if (deletedOrder.user === userInfo?.id) {
+      });
+  
+      socket.on("orderDeleted", (deletedOrder) => {
         setOrderCount((prevCount) => prevCount - 1);
-      }
-    });
+      });
+  
 
     return () => {
       socket.off('orderCreated');
@@ -55,4 +51,4 @@ const TrackOrderIcon = () => {
   );
 };
 
-export default TrackOrderIcon;
+export default DashboardIcon;

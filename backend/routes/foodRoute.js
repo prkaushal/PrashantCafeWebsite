@@ -9,7 +9,7 @@ router.post('/', auth, async (request, response) => {
     try {
         if (
             !request.body.name ||
-            !request.body.priceInCents ||
+            !request.body.price ||
             !request.body.image
         ) {
             return response.status(400).send({
@@ -19,7 +19,7 @@ router.post('/', auth, async (request, response) => {
 
         const newFood = {
             name: request.body.name,
-            priceInCents: request.body.priceInCents,
+            price: request.body.price,
             image: request.body.image
         };
 
@@ -73,7 +73,7 @@ router.put('/:id', auth, async (request, response) => {
     try {
         if (
             !request.body.name ||
-            !request.body.priceInCents
+            !request.body.price
         ) {
             return response.status(400).send({
                 message: 'Required fields are missing'

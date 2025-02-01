@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom';
 import axios from "axios";
+import { useSnackbar } from 'notistack';
 
 
 const Register = () => {
@@ -52,12 +53,13 @@ const Register = () => {
         setErrorMessage('Registration succesfull');
         setTimeout(() => {
             navigate('/login');
-        }, 4000);
+        }, 3000);
 
         } catch (error) {
             setIsSuccess(false);
-            setErrorMessage(error.response.data.msg || 'An error occurred');
-
+            const errorMsg = error.response.data.msg || 'An error occurred';
+            setErrorMessage(errorMsg);
+            useSnackbar(errorMsg, { variant: 'error' });
         }
     };
 

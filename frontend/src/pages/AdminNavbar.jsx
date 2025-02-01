@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { AiOutlineClose, AiOutlineMenu } from "react-icons/ai";
 import { Link } from "react-router-dom";
-import TrackOrderIcon from '../components/TrackOrderIcon';
+
+import DashboardIcon from "../components/DashboardIcon";
 
 const AdminNavbar = () => {
   const [nav, setNav] = useState(false);
@@ -38,7 +39,7 @@ const AdminNavbar = () => {
               <Link to="/admin/dashboard" className={`relative ${location.pathname === '/admin/dashboard' ? 'text-yellow-500' : 'text-white'}`}>
                 
                 Dashboard
-            <TrackOrderIcon />
+            <DashboardIcon />
               </Link>
               <button onClick={logout} className="text-white bg-red-400 px-3 py-1 rounded-md hover:bg-red-500">
                 Logout

@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import axios from "axios";
+import axiosInstance from "../axiosInstance";
 
 const UserLogin = () => {
 
@@ -22,7 +23,7 @@ const UserLogin = () => {
         e.preventDefault();
         try {
 
-            const response = await axios.post('http://localhost:3000/auth/userLogin', loginData);
+            const response = await axiosInstance.post('/auth/userLogin', loginData);
             console.log(response.data);
 
             localStorage.setItem('userToken', response.data.token);

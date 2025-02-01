@@ -7,7 +7,7 @@ import Spinner from '../components/Spinner';
 const EditFood = () => {
 
     const [name, setName] = useState('');
-    const [priceInCents, setPriceInCents] = useState('');
+    const [price, setPrice] = useState('');
     
     const [loading, setLoading] = useState(false);
 
@@ -30,7 +30,7 @@ const EditFood = () => {
             .get(`http://localhost:3000/food/${id}`)
             .then((response) => {
                 setName(response.data.name);
-                setPriceInCents(response.data.priceInCents);
+                setPrice(response.data.price);
                 setLoading(false);
             })
             .catch((error) => {
@@ -41,7 +41,7 @@ const EditFood = () => {
     }, [id]);
 
     const handleEditFood = () => {
-        const data = { name, priceInCents };
+        const data = { name, price };
         setLoading(true);
         axios
             .put(`http://localhost:3000/food/${id}`, data, config)
@@ -74,12 +74,12 @@ const EditFood = () => {
                     className='border border-gray-300 px-4 py-2 w-full rounded-md'    
                 />
 
-                <label htmlFor="priceInCents" className='block text-md text-gray-600 mb-2'>Price in cents</label>
+                <label htmlFor="price" className='block text-md text-gray-600 mb-2'>Price </label>
                 <input 
-                    id="priceInCents"
+                    id="price"
                     type="number"
-                    value={priceInCents}
-                    onChange={(e) => setPriceInCents(e.target.value)}
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
                     className='border border-gray-300 px-4 py-2 w-full rounded-md'    
                 />
 
