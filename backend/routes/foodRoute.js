@@ -1,11 +1,11 @@
 import express from "express";
 import { Food } from "../models/foodModel.js";
-import { auth } from "../middleware/authMiddleware.js";
+import { adminAuth, auth } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
 //creating a new food item
-router.post('/', auth, async (request, response) => {
+router.post('/', adminAuth, async (request, response) => {
     try {
         if (
             !request.body.name ||
@@ -50,7 +50,7 @@ router.get('/', async (request, response) => {
 
 
 //deleting specific food item
-router.delete('/:id', auth, async (request, response) => {
+router.delete('/:id', adminAuth, async (request, response) => {
     try {
 
         const { id } = request.params;
@@ -69,7 +69,7 @@ router.delete('/:id', auth, async (request, response) => {
 })
 
 //updating a food item
-router.put('/:id', auth, async (request, response) => {
+router.put('/:id', adminAuth, async (request, response) => {
     try {
         if (
             !request.body.name ||

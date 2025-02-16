@@ -25,18 +25,6 @@ const orderSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    upiId: {
-      type: String,
-      required: true,
-    },
-    paymentStatus: {
-      type: String,
-      enum: ["pending", "paid"],
-      default: "pending",
-    },
-    transactionReference: {
-      type: String,
-    },
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

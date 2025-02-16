@@ -60,19 +60,18 @@ router.delete("/:id", adminAuth, async (req, res) => {
   }
 });
 
-// Create a new order (manual UPI payment request)
-// This endpoint saves the order with paymentStatus "pending" and returns a reference.
+// Create a new order 
 router.post("/", auth, async (req, res) => {
-  const { user, items, seatNumber, userName, upiId, totalPrice } = req.body;
+  const { user, items, seatNumber, userName, totalPrice } = req.body;
 
-  if (!seatNumber || !userName || !upiId) {
-    return res.status(400).json({ message: "Seat number, name and UPI ID are required." });
+  if (!seatNumber || !userName ) {
+    return res.status(400).json({ message: "Seat number and userName are required." });
   }
 
   try {
-    // Generate a unique orderId (used as payment reference)
+    // Generate a unique orderId
     const orderId = crypto.createHash("sha256")
-      .update(JSON.stringify({ user, items, seatNumber, userName, totalPrice, upiId, time: Date.now() }))
+      .update(JSON.stringify({ user, items, seatNumber, userName, totalPrice, time: Date.now() }))
       .digest("hex");
 
     const order = new Order({
@@ -80,16 +79,15 @@ router.post("/", auth, async (req, res) => {
       items,
       seatNumber,
       userName,
-      upiId,
       totalPrice,
       user,
-      paymentStatus: "pending",  // Payment not yet confirmed
+      
     });
 
     await order.save();
     io.emit("orderCreated", order);
     return res.status(201).json({ 
-      message: "Payment request created. Please pay using the reference provided.",
+      message: "Order placed successfully",
       order 
     });
   } catch (error) {
@@ -98,31 +96,5 @@ router.post("/", auth, async (req, res) => {
   }
 });
 
-// Confirm payment endpoint
-// In a real implementation, you would verify the transaction reference via your bank API.
-// Here, if the user submits a non-empty transactionReference, we mark the order as paid.
-router.post("/confirm", auth, async (req, res) => {
-  const { orderId, transactionReference } = req.body;
-  if (!transactionReference) {
-    return res.status(400).json({ message: "Transaction reference is required." });
-  }
-
-  try {
-    const order = await Order.findOne({ orderId });
-    if (!order) {
-      return res.status(404).json({ message: "Order not found." });
-    }
-
-    // Here you could add extra logic to verify the transactionReference.
-    order.paymentStatus = "paid";
-    order.transactionReference = transactionReference; // Save the reference for your records
-    await order.save();
-    io.emit("orderUpdated", order);
-    return res.status(200).json({ message: "Payment confirmed.", order });
-  } catch (error) {
-    console.error("Payment confirmation error:", error);
-    return res.status(500).json({ message: "Payment confirmation failed: " + error.message });
-  }
-});
 
 export default router;

@@ -40,9 +40,9 @@ const CreateFood = () => {
             return;
         }
 
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('adminToken');
         if(!token) {
-            console.log('No token found');
+            console.log('No adminToken found');
             enqueueSnackbar('Authentification required', { variant: 'error'});
             return;
         }
@@ -74,11 +74,13 @@ const CreateFood = () => {
             return;
         }
 
-        const price = parseInt(price);
-        if (isNaN(price) || price <= 0) {
+        const parsedPrice = parseInt(price);
+        if ( isNaN(parsedPrice) || parsedPrice <= 0) {
             enqueueSnackbar('Price must be a positive number', { variant: 'warning'});
             return;
         }
+
+        
 
         if (name.length < 2 || name.length > 30) {
             enqueueSnackbar('Food name must be between 2 and 30 characters', { variant: 'warning'});
@@ -99,7 +101,7 @@ const CreateFood = () => {
                 image: uploadedImageUrl
             };
 
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('adminToken');
             if (!token) {
                 enqueueSnackbar('Authentification failed', { variant: 'error'} );
                 setLoading(false);

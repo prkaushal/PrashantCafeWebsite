@@ -23,7 +23,7 @@ const auth = async (req, res, next) => {
         next();
 
     } catch (e) {
-        console.error("Token verification error:", e.message);
+        console.error("userToken verification error:", e.message);
         res.status(401).json({msg:'Token is not valid'});
     }
 };
@@ -47,7 +47,7 @@ const adminAuth = async (req, res, next) => {
         next();
 
     } catch (e) {
-        console.error("Token verification error:", e.message);
+        console.error("adminToken verification error:", e.message);
         res.status(401).json({msg:'Token is not valid'});
     }
 };

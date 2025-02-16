@@ -12,33 +12,54 @@ const Cart = () => {
   // Basic order details
   const [seatNumber, setSeatNumber] = useState("");
   const [userName, setUserName] = useState("");
-  const [upiId, setUpiId] = useState("");
-  
-  // New states for our manual UPI flow
-  const [orderInfo, setOrderInfo] = useState(() => {
-    const savedOrder = localStorage.getItem("orderInfo");
-    return savedOrder ? JSON.parse(savedOrder) : null;
-  });
-  const [paymentRefInput, setPaymentRefInput] = useState("");
   const [loading, setLoading] = useState(false);
 
   const { enqueueSnackbar } = useSnackbar();
   const { cartItems, decreaseCartItemQuantity, addToCart, clearCart } = useCart();
-
-  // Persist orderInfo to localStorage
-  useEffect(() => {
-    if (orderInfo) {
-      localStorage.setItem("orderInfo", JSON.stringify(orderInfo));
-    } else {
-      localStorage.removeItem("orderInfo");
-    }
-  }, [orderInfo]);
-
+  
 
   const totalPrice = cartItems.reduce(
-    (acc, item) => acc + item.priceInCents * item.quantity,
+    (acc, item) => acc + item.price * item.quantity,
     0
   );
+
+  const placeOrder = async () => {
+    if (!seatNumber || !userName) {
+      enqueueSnackbar("Name and seat number are required", { variant: "warning" });
+      return;
+    }
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("userToken");
+      if (!token) {
+        enqueueSnackbar("You must be logged in to place an order", { variant: "warning" });
+        return;
+      }
+      const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+      const orderData = {
+        user: userInfo.id,
+        items: cartItems,
+        seatNumber,
+        userName,
+        totalPrice,    // Total amount in rupees
+      };
+      
+      const response = await axios.post("/order", orderData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      enqueueSnackbar(response.data.message || "Order placed successfully", { variant: "success" });
+      clearCart();
+      setLoading(false);
+    } catch (error) {
+      console.error("Error placing order:", error);
+      enqueueSnackbar("Order placement failed", { variant: "error" });
+      setLoading(false);
+    }
+  };
+
+
+
+
 
   if (cartItems.length === 0) {
     return (
@@ -48,68 +69,8 @@ const Cart = () => {
     );
   }
 
-  // Step 1: Request Payment (create order with status pending)
-  const requestPayment = async () => {
-    if (!seatNumber || !userName || !upiId) {
-      enqueueSnackbar("Name, seat number, and UPI ID are required", { variant: "warning" });
-      return;
-    }
-    setLoading(true);
-    try {
-      const token = localStorage.getItem("userToken");
-      const userInfo = JSON.parse(localStorage.getItem("userInfo"));
-      const orderData = {
-        user: userInfo.id,
-        items: cartItems,
-        seatNumber,
-        userName,
-        upiId,         // Save the user's UPI id
-        totalPrice,    // Total amount in paise
-      };
 
-      // Call the backend to create an order (with a pending payment status)
-      const response = await axios.post("http://localhost:3000/order", orderData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      enqueueSnackbar(response.data.message || "Payment request sent", { variant: "success" });
-      setOrderInfo(response.data.order);
-      setLoading(false);
-    } catch (error) {
-      console.error("Error requesting payment:", error);
-      enqueueSnackbar("Payment request failed", { variant: "error" });
-      setLoading(false);
-    }
-  };
-
-  // Step 2: Confirm Payment (user enters transaction reference after paying)
-  const confirmPayment = async () => {
-    if (!paymentRefInput) {
-      enqueueSnackbar("Please enter the transaction reference", { variant: "warning" });
-      return;
-    }
-    setLoading(true);
-    try {
-      const token = localStorage.getItem("userToken");
-      const response = await axios.post(
-        "http://localhost:3000/order/confirm",
-        {
-          orderId: orderInfo.orderId,
-          transactionReference: paymentRefInput,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}`},
-        }
-      );
-      enqueueSnackbar("Payment confirmed and order placed", { variant: "success" });
-      clearCart();
-      setOrderInfo(response.data.order);
-      setLoading(false);
-    } catch (error) {
-      console.error("Error confirming payment:", error);
-      enqueueSnackbar("Payment confirmation failed", { variant: "error" });
-      setLoading(false);
-    }
-  };
+  
 
   return (
     <div className="p-4 max-w-[1400px] mx-auto">
@@ -123,7 +84,7 @@ const Cart = () => {
               <img
                 src={item.image}
                 alt={item.name}
-                className="rounded-md mb-4 w-full h-64 object-cover"
+                className="rounded-md mb-4 w-full h-64 object-contain"
               />
               <h2 className="text-lg font-bold mb-2">{item.name}</h2>
               <p className="text-md mb-1">Price: Rs. {item.price}</p>
@@ -176,62 +137,22 @@ const Cart = () => {
               ))}
             </select>
           </div>
-          
-          <div className="mb-4 md:mb-0">
-            <label className="block mb-2 font-semibold">Your UPI ID</label>
-            <input
-              type="text"
-              placeholder="example@upi"
-              value={upiId}
-              onChange={(e) => setUpiId(e.target.value)}
-              className="border p-2 rounded mr-4"
-            />
-          </div>
 
           <div>
             <p className="text-2xl font-semibold mb-4">
               Total Price: Rs. {totalPrice}
             </p>
-            {/* Show "Request Payment" button if order is not yet created */}
-            {!orderInfo && (
+            
+            { (
               <button
-                onClick={requestPayment}
+                onClick={placeOrder}
                 className="bg-blue-600 hover:bg-blue-800 text-white font-bold py-3 px-6 rounded"
               >
-                Pay Now
+                Pay and Order
               </button>
             )}
           </div>
         </div>
-
-        {/* If an order was created (pending payment), show payment instructions */}
-        {orderInfo && orderInfo.paymentStatus === "pending" && (
-          <div className="text-center border border-gray-400 p-6 rounded-lg">
-            <h3 className="text-xl font-bold mb-4">Payment Request Sent</h3>
-            <p className="mb-4">
-              Please send Rs. {totalPrice} to your UPI app using your UPI ID (
-              <strong>{upiId}</strong>). Use the reference code: <strong>{orderInfo.orderId}</strong>.
-            </p>
-            <div className="mb-4">
-              <label className="block mb-2 font-semibold">
-                Enter Transaction Reference Once Payment Is Done
-              </label>
-              <input
-                type="text"
-                placeholder="Enter transaction reference"
-                value={paymentRefInput}
-                onChange={(e) => setPaymentRefInput(e.target.value)}
-                className="border p-2 rounded w-full max-w-xs mx-auto"
-              />
-            </div>
-            <button
-              onClick={confirmPayment}
-              className="bg-green-600 hover:bg-green-800 text-white font-bold py-3 px-6 rounded"
-            >
-              Confirm Payment
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );
