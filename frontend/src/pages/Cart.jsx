@@ -41,7 +41,7 @@ const Cart = () => {
         items: cartItems,
         seatNumber,
         userName,
-        totalPrice,    // Total amount in rupees
+        totalPrice,   
       };
       
       const response = await axios.post("/order", orderData, {
@@ -109,7 +109,7 @@ const Cart = () => {
           ))}
         </div>
 
-        {/* Order details input */}
+        
         <div className="text-center mt-8 rounded-lg mb-10 border border-black py-10 flex flex-col md:flex-row justify-around">
           <div className="mb-4 md:mb-0">
             <label className="block mb-2 font-semibold">Order for</label>
@@ -146,7 +146,7 @@ const Cart = () => {
             { (
               <button
                 onClick={placeOrder}
-                className="bg-blue-600 hover:bg-blue-800 text-white font-bold py-3 px-6 rounded"
+                className="bg-green-600 hover:bg-blue-800 text-white font-bold py-3 px-6 rounded"
               >
                 Pay and Order
               </button>
