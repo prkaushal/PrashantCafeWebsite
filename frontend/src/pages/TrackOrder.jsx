@@ -134,13 +134,13 @@ const TrackOrder = () => {
       {orders.map((order) => (
         <div key={order._id} className="bg-white p-6 border  rounded-lg shadow-lg mb-4">
           <h3 className="text-xl font-semibold mb-4">Order Information</h3>
-        
+          <p className="text-gray-700 mb-2">
+          <strong>Order for:</strong> {order.userName}
+        </p>
           <p className="text-gray-700 mb-2">
             <strong>Seat Number:</strong> {order.seatNumber}
           </p>
-          <p className="text-gray-700 mb-2">
-            <strong>Order for:</strong> {order.userName}
-          </p>
+          
           <p className="text-gray-700 mb-2">
             <strong>Total Price:</strong> Rs. {order.totalPrice.toFixed(2)}
           </p>
@@ -158,7 +158,7 @@ const TrackOrder = () => {
               order.timeLeft <= 2 * 60 * 1000 ? "text-red-500" : "text-black"
             }`}
           >
-            Time Remaining: {formatTime(order.timeLeft || calculateTimeLeft(order.createdAt))}
+            Order arriving in : {formatTime(order.timeLeft || calculateTimeLeft(order.createdAt))}
           </p>
         </div>
       ))}

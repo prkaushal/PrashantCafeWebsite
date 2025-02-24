@@ -5,6 +5,7 @@ import { BiPlus, BiMinus } from "react-icons/bi";
 import { useSnackbar } from "notistack";
 import Spinner from "../components/Spinner";
 import io from "socket.io-client";
+import axiosInstance from "../axiosInstance";
 
 const socket = io("http://localhost:3000");
 
@@ -44,7 +45,7 @@ const Cart = () => {
         totalPrice,   
       };
       
-      const response = await axios.post("/order", orderData, {
+      const response = await axiosInstance.post("/order", orderData, {
         headers: { Authorization: `Bearer ${token}` },
       });
       enqueueSnackbar(response.data.message || "Order placed successfully", { variant: "success" });
@@ -80,7 +81,7 @@ const Cart = () => {
       <div>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {cartItems.map((item, index) => (
-            <div key={index} className="bg-white rounded-lg shadow-lg p-4 flex flex-col">
+            <div key={index} className="bg-white border-2 rounded-lg shadow-lg p-4 flex flex-col">
               <img
                 src={item.image}
                 alt={item.name}
@@ -146,7 +147,7 @@ const Cart = () => {
             { (
               <button
                 onClick={placeOrder}
-                className="bg-green-600 hover:bg-blue-800 text-white font-bold py-3 px-6 rounded"
+                className="bg-green-600 hover:bg-green-800 text-white font-bold py-3 px-6 rounded"
               >
                 Pay and Order
               </button>

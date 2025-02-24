@@ -106,7 +106,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="px-4 py-8 max-w-7xl mx-auto bg-gray-50">
+    <div className="px-4 py-8 max-w-7xl  mx-auto bg-gray-50">
       {loading && <Spinner />}
 
       <div>
@@ -115,7 +115,7 @@ const Dashboard = () => {
           {orders.map((order) => (
             <div
               key={order._id}
-              className="bg-white p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
+              className="bg-white p-6 rounded-lg border-2 shadow-lg hover:shadow-xl transition-shadow duration-300"
             >
               <h1 className="text-gray-700  mb-2">
                 <strong>Ordered for:</strong> {order.userName}
@@ -129,7 +129,7 @@ const Dashboard = () => {
               <ul className="mb-4">
                 {order.items.map((item, index) => (
                   <li key={index} className="text-gray-600">
-                    {item.name} - Quantity: {item.quantity}
+                    {item.name} - {item.quantity}
                   </li>
                 ))}
               </ul>

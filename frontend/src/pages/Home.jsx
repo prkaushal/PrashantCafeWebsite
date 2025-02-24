@@ -6,8 +6,11 @@ const Home = () => {
   const [food, setFood] = useState([]);
   const [loading, setLoading] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
+  
+
 
   useEffect(() => {
+    setLoading(true);
     const storedUserInfo = localStorage.getItem('userInfo');
     if (storedUserInfo) {
       setUserInfo(JSON.parse(storedUserInfo));
@@ -26,6 +29,8 @@ const Home = () => {
         setLoading(false);
       });
   }, []);
+
+
 
   return (
     <div className="p-4 max-w-[1400px] mx-auto ">

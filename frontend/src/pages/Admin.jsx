@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from "axios";
 import { Link } from "react-router-dom";
+import Spinner from '../components/Spinner';
 
 
 const Admin = () => {
@@ -29,8 +30,11 @@ const Admin = () => {
       <Link to="/admin/food/create" className='bg-green-600 hover:bg-green-900 text-white py-2 px-4 font-medium rounded-lg shadow-md'>
         Add Item +
       </Link>
+
       
+
       <div className='overflow-x-auto shadow-md rounded-lg'>
+      
         <table className='w-full text-left'>
           <thead className='uppercase bg-gray-200'>
             <tr>
@@ -41,6 +45,7 @@ const Admin = () => {
             </tr>
           </thead>
           <tbody>
+          {loading && <Spinner />}
             {food.map((food, index) => (
               <tr key={food._id} className='bg-white hover:bg-gray-300'>
                 <td className='py-3 px-5'>{index + 1}</td>

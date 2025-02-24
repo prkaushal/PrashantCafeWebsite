@@ -20,8 +20,8 @@ const FoodSingleCard = ({ food }) => {
 
   return (
     <div className='border rounded-lg overflow-hidden shadow-lg hover:shadow-2xl m-4 bg-gradient-to-br from-green-50 to-green-100 relative'>
-    <div className='p-1'>
-    <img className='h-56 w-full object-cover lg:h-72' src={food.image} alt={food.name} />
+    <div className='p-1 '>
+    <img className='h-56 w-full object-fill lg:h-72' src={food.image} alt={food.name} />
     </div>
         <div className='p-4'>
             <div className='flex justify-between items-baseline mb-12'>

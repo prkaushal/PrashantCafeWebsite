@@ -15,6 +15,7 @@ const AdminNavbar = () => {
 
   const loggedIn = !!localStorage.getItem("adminToken");
 
+
   return (
     <div className="bg-gradient-to-r from-green-500 to-green-600 shadow-lg">
       <div className="flex justify-between items-center p-4">
@@ -44,6 +45,10 @@ const AdminNavbar = () => {
               <button onClick={logout} className="text-white bg-red-400 px-3 py-1 rounded-md hover:bg-red-500">
                 Logout
               </button>
+
+
+
+
             </>
           ) : (
             <Link to="/login" className="text-white">
@@ -55,5 +60,9 @@ const AdminNavbar = () => {
     </div>
   );
 };
+
+
+
+
 
 export default AdminNavbar;
